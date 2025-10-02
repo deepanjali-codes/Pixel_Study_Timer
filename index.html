@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixel Study Timer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Press Start 2P', cursive, monospace;
+        }
+
+        body {
+            background-color: #1a1a2e;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+        .container {
+            background-color: rgba(44, 44, 78, 0.85);
+            border: 8px solid #16213e;
+            padding: 30px;
+            border-radius: 0;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 30px;
+            color: #e94560;
+            text-shadow: 3px 3px 0 #000;
+            letter-spacing: 1px;
+        }
+
+        .timer-display {
+            background-color: #0f3460;
+            border: 6px solid #16213e;
+            padding: 20px;
+            margin-bottom: 30px;
+            font-size: 48px;
+            color: #fff;
+            text-shadow: 2px 2px 0 #000;
+            letter-spacing: 2px;
+            image-rendering: pixelated;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .pixel-button {
+            background-color: #e94560;
+            border: none;
+            color: white;
+            padding: 12px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            image-rendering: pixelated;
+            border: 4px solid #000;
+            box-shadow: 4px 4px 0 #000;
+            transition: all 0.1s;
+            text-shadow: 2px 2px 0 #000;
+        }
+
+        .pixel-button:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0 #000;
+        }
+
+        .pixel-button:active {
+            transform: translate(4px, 4px);
+            box-shadow: 0 0 0 #000;
+        }
+
+        .pixel-button.start {
+            background-color: #4CAF50;
+        }
+
+        .pixel-button.pause {
+            background-color: #FFC107;
+            color: #000;
+        }
+
+        .pixel-button.reset {
+            background-color: #F44336;
+        }
+
+        .session-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .session-btn {
+            background-color: #0f3460;
+            border: 4px solid #000;
+            color: white;
+            padding: 10px 15px;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: 3px 3px 0 #000;
+            transition: all 0.1s;
+            text-shadow: 1px 1px 0 #000;
+        }
+
+        .session-btn:hover {
+            transform: translate(1px, 1px);
+            box-shadow: 2px 2px 0 #000;
+        }
+
+        .session-btn.active {
+            background-color: #e94560;
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0 #000;
+        }
+
+        .session-info {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #ccc;
+            text-shadow: 1px 1px 0 #000;
+        }
+
+        /* Pixel art elements */
+        .pixel-border {
+            border-style: solid;
+            border-width: 0px;
+            border-image: 
+                url('https://storage.ko-fi.com/cdn/useruploads/f413949b-7a6d-42e1-bc13-10fc3fac260e_lethalcompany.gifhttps://storage.ko-fi.com/cdn/useruploads/f413949b-7a6d-42e1-bc13-10fc3fac260e_lethalcompany.gif') 
+                2 repeat;
+        }
+
+        @media (max-width: 500px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 18px;
+            }
+            
+            .timer-display {
+                font-size: 36px;
+            }
+            
+            .pixel-button {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+        }
+
+        body{
+            background-image: url('https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/b8e14b5d-3bd1-4d81-9cd3-63c9b85fb808/dgwgj9u-284e4a24-f6a7-4f38-8445-15bf28557860.gif?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7InBhdGgiOiIvZi9iOGUxNGI1ZC0zYmQxLTRkODEtOWNkMy02M2M5Yjg1ZmI4MDgvZGd3Z2o5dS0yODRlNGEyNC1mNmE3LTRmMzgtODQ0NS0xNWJmMjg1NTc4NjAuZ2lmIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmZpbGUuZG93bmxvYWQiXX0.SxsXztMkpGcX6Od5A7Y2DJnOcAAZqOfIJObGD3TZptw');
+            background-size: cover;
+        }
+
+        :root{
+            --primary-color:#0004ff;--secondary-color:#0030cc;--accent-color:#00eeff;
+            --text-color:#fff;--glow-color:rgba(0,255,0,.5)
+        }
+        /* ... (ALL OLD CSS from previous answer here, unchanged!) ... */
+        
+        /* ============ NEW : SPOTIFY WIDGET IN CORNER ============ */
+        .spotify-widget{
+            position:fixed;top:190px;right:45px;z-index:99;
+            width:260px;
+            background:rgba(0,0,0,.65);border:3px solid var(--primary-color);
+            backdrop-filter:blur(6px);padding:10px;box-shadow:0 0 15px var(--glow-color)
+        }
+        .spotify-widget h4{
+            color:var(--primary-color);font-size:9px;text-align:center;margin-bottom:6px;
+            text-shadow:0 0 8px var(--glow-color);letter-spacing:1px
+        }
+        #spotifyPlayer{width:100%;height:80px;border:2px solid var(--primary-color);border-radius:6px}
+        #urlBar{width:100%;padding:6px;font-size:8px;margin-top:6px;
+            background:rgba(0,0,0,.8);color:var(--primary-color);border:2px solid var(--primary-color)
+        }
+        .sp-btn{margin-top:6px;font-size:8px;padding:5px 8px;cursor:pointer;
+            background:var(--primary-color);border:none;color:#000;width:100%;box-shadow:2px 2px 0 #000
+        }
+        .sp-btn:active{transform:translate(2px,2px)}
+        /* ---------- BG-GIF DROPDOWN ---------- */
+        .bg-select{margin-top:10px}
+        .bg-select select{
+            width:100%;padding:6px;font-size:8px;
+            background:rgba(0,0,0,.8);color:var(--primary-color);
+            border:2px solid var(--primary-color);cursor:pointer
+        }
+        .bg-select label{display:block;font-size:8px;color:var(--primary-color);margin-bottom:4px}
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- You can replace this with your pixel GIF -->
+    <!-- <img id="https://i.pinimg.com/originals/71/31/77/713177e7b221e3d2570237268fd19c6e.gif" alt="Pixel Background"> -->
+    
+    <div class="container">
+        <h1>PIXEL STUDY TIMER</h1>
+        
+        <div class="timer-display" id="timer">
+            60:00
+        </div>
+        
+        <div class="controls">
+            <button class="pixel-button start" id="startBtn">START</button>
+            <button class="pixel-button pause" id="pauseBtn">PAUSE</button>
+            <button class="pixel-button reset" id="resetBtn">RESET</button>
+        </div>
+        
+        <div class="session-controls">
+            <button class="session-btn active" data-time="60">60 MIN</button>
+            <button class="session-btn" data-time="25">25 MIN</button>
+            <button class="session-btn" data-time="5">5 MIN</button>
+            <button class="session-btn" data-time="10">10 MIN</button>
+        </div>
+        
+        <div class="session-info">
+            <p>Session: <span id="sessionCount">0</span> | Break: <span id="breakCount">0</span></p>
+        </div>
+    </div>
+
+    <div class="spotify-widget" id="widget">
+        <h4>🎧 SPOTIFY PLAYLIST</h4>
+        <iframe id="spotifyPlayer" src="https://open.spotify.com/embed/playlist/37i9dQZF1DWZeKCAdg8kOA?utm_source=generator" allowtransparency="true" allow="encrypted-media"></iframe>
+        <input id="urlBar" type="text" placeholder="paste playlist URL & hit LOAD">
+        <button class="sp-btn" id="loadBtn">LOAD / CHANGE</button>
+    
+        <div class="bg-select">
+            <label for="bgSel">THEME ✨</label>
+            <select id="bgSel">
+                <option value="https://i.redd.it/fisnfas5ip7c1.gif">🌌 Neon City</option>
+
+                <option value="https://wallpapers-clan.com/wp-content/uploads/2024/03/starfall-night-sky-mountains-aesthetic-gif-preview-desktop-wallpaper.gif">🌠 Star Field</option>
+
+                <option value="https://i.pinimg.com/originals/ea/f2/10/eaf2102aaa597054f587c5caaeb9e3da.gif">🌊 Wave Grid</option>
+
+                <option value="https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/b8e14b5d-3bd1-4d81-9cd3-63c9b85fb808/dgwgj9u-284e4a24-f6a7-4f38-8445-15bf28557860.gif?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7InBhdGgiOiIvZi9iOGUxNGI1ZC0zYmQxLTRkODEtOWNkMy02M2M5Yjg1ZmI4MDgvZGd3Z2o5dS0yODRlNGEyNC1mNmE3LTRmMzgtODQ0NS0xNWJmMjg1NTc4NjAuZ2lmIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmZpbGUuZG93bmxvYWQiXX0.SxsXztMkpGcX6Od5A7Y2DJnOcAAZqOfIJObGD3TZptw">🌴 Sunset Palm</option>
+
+                <option value="https://i.redd.it/clbdi386p9ud1.gif">🛰️ Space Station</option>
+
+                <option value="https://i.redd.it/kw74k2hqoai91.gif">🌧️ Retro Rain</option>
+            </select>
+        </div>
+    </div>
+    
+    <!-- ============ THE ORIGINAL TIMER ============ -->
+    <!--  (use EXACT HTML from previous answer – shortened here for brevity) -->
+    <!-- <div class="container" data-theme="classic">
+        theme label, timers, buttons, etc … 
+    </div> -->
+    
+    <script>
+        // Timer variables
+        let timer;
+        let isRunning = false;
+        let timeLeft = 60 * 60; // 25 minutes in seconds
+        let currentSessionTime = 60 * 60;
+        let sessionCount = 0;
+        let breakCount = 0;
+        let isBreakTime = false;
+
+        // DOM elements
+        const timerDisplay = document.getElementById('timer');
+        const startBtn = document.getElementById('startBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const sessionBtns = document.querySelectorAll('.session-btn');
+        const sessionCountDisplay = document.getElementById('sessionCount');
+        const breakCountDisplay = document.getElementById('breakCount');
+
+        // Format time as MM:SS
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+        }
+
+        // Update the timer display
+        function updateDisplay() {
+            timerDisplay.textContent = formatTime(timeLeft);
+        }
+
+        // Start the timer
+        function startTimer() {
+            if (!isRunning) {
+                isRunning = true;
+                timer = setInterval(() => {
+                    timeLeft--;
+                    updateDisplay();
+                    
+                    if (timeLeft <= 0) {
+                        clearInterval(timer);
+                        isRunning = false;
+                        
+                        // Play notification sound
+                        playNotification();
+                        
+                        if (!isBreakTime) {
+                            // Study session completed
+                            sessionCount++;
+                            sessionCountDisplay.textContent = sessionCount;
+                            alert('Study session completed! Time for a break.');
+                            
+                            // Start break time (5 minutes)
+                            isBreakTime = true;
+                            timeLeft = 5 * 60;
+                            currentSessionTime = 5 * 60;
+                        } else {
+                            // Break completed
+                            breakCount++;
+                            breakCountDisplay.textContent = breakCount;
+                            alert('Break time over! Ready for another study session?');
+                            
+                            // Start new study session
+                            isBreakTime = false;
+                            timeLeft = currentSessionTime;
+                        }
+                        
+                        updateDisplay();
+                    }
+                }, 1000);
+            }
+        }
+
+        // Pause the timer
+        function pauseTimer() {
+            if (isRunning) {
+                clearInterval(timer);
+                isRunning = false;
+            }
+        }
+
+        // Reset the timer
+        function resetTimer() {
+            clearInterval(timer);
+            isRunning = false;
+            timeLeft = currentSessionTime;
+            updateDisplay();
+        }
+
+        // Set session time
+        function setSessionTime(minutes) {
+            if (!isRunning) {
+                currentSessionTime = minutes * 60;
+                timeLeft = currentSessionTime;
+                updateDisplay();
+                
+                // Update active button
+                sessionBtns.forEach(btn => {
+                    btn.classList.remove('active');
+                    if (parseInt(btn.dataset.time) === minutes) {
+                        btn.classList.add('active');
+                    }
+                });
+            }
+        }
+
+        // Play notification sound
+        function playNotification() {
+            // Create a simple beep sound
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = 800;
+            oscillator.type = 'square';
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.5);
+        }
+
+        // Event listeners
+        startBtn.addEventListener('click', startTimer);
+        pauseBtn.addEventListener('click', pauseTimer);
+        resetBtn.addEventListener('click', resetTimer);
+
+        sessionBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (!isRunning) {
+                    setSessionTime(parseInt(btn.dataset.time));
+                }
+            });
+        });
+
+        // Initialize display
+        updateDisplay();
+
+        /* ========= UTILITIES ========= */
+        const qs = id => document.getElementById(id);
+        const extractId = url => (url.match(/playlist\/([a-zA-Z0-9]+)/)||[])[1]||'';
+        
+        /* ========= BACKGROUND GIF HANDLING ========= */
+        function setBackground(url){
+            document.body.style.backgroundImage = `url('${url}')`;
+            localStorage.setItem('pixelTimerBG',url);
+        }
+        (function initBG(){
+            const saved = localStorage.getItem('pixelTimerBG');
+            if(saved) setBackground(saved);
+            qs('bgSel').value = saved || qs('bgSel').value;
+            qs('bgSel').addEventListener('change',e=>setBackground(e.target.value));
+        })();
+        
+        /* ========= SPOTIFY WIDGET LOGIC ========= */
+        (function initSpotify(){
+            const player = qs('spotifyPlayer');
+            const urlBar = qs('urlBar');
+            const saved = localStorage.getItem('pixelTimerPlaylist');
+            if(saved){ urlBar.value = saved; player.src=`https://open.spotify.com/embed/playlist/${extractId(saved)}?utm_source=generator`; }
+            qs('loadBtn').onclick = ()=>{
+                const url = urlBar.value.trim();
+                const id  = extractId(url);
+                if(id){
+                    player.src = `https://open.spotify.com/embed/playlist/${id}?utm_source=generator`;
+                    localStorage.setItem('pixelTimerPlaylist',url);
+                }else{ alert('⚠️  Please paste a valid Spotify playlist URL'); }
+            };
+        })();
+        
+    </script>
+</body>
+</html>
