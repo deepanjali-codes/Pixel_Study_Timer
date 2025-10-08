@@ -40,7 +40,7 @@ Basically… if your attention span has been nerfed by the internet, this timer 
 
 ⚡ How to Use
 
-Clone this repo (git clone https://github.com/your-username/pixel-study-timer)
+Clone this repo (git clone https://github.com/deepanjali-codes/pixel-study-timer)
 
 Open it up in your environment of choice
 
